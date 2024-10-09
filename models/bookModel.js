@@ -115,7 +115,12 @@ const bookSchema = mongoose.Schema(
 
 bookSchema.virtual('priceAfterDiscount').get(function () {
   if (this.priceDiscount) {
-    return this.price - this.priceDiscount;
+    return Math.round((this.price - this.priceDiscount) * 100) / 100;
+  }
+});
+bookSchema.virtual('priceDiscountPercent').get(function () {
+  if (this.priceDiscount) {
+    return Math.floor((this.priceDiscount / this.price) * 100);
   }
 });
 
