@@ -42,8 +42,7 @@ exports.createBook = async (req, res, next) => {
     const book = await Book.create(req.body);
     if (!book) {
       return next(
-        new AppError("Something went wrong. Can't add this book."),
-        404
+        new AppError("Something went wrong. Can't add this book.", 404)
       );
     }
     res.status(201).json({
