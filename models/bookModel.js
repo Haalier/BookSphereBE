@@ -4,7 +4,7 @@ const slugify = require('slugify');
 const bookSchema = mongoose.Schema(
   {
     title: {
-      type: string,
+      type: String,
       required: [true, 'A book title is required!'],
       trim: true,
       minLength: [1, 'A book title must have more or equal than 1 character!'],
@@ -14,7 +14,7 @@ const bookSchema = mongoose.Schema(
       ],
     },
     author: {
-      type: string,
+      type: String,
       required: [true, 'Author is required!'],
       trim: true,
       maxLength: [
@@ -28,7 +28,7 @@ const bookSchema = mongoose.Schema(
       min: [1, 'A book must have at least 1 page!'],
     },
     category: {
-      type: string,
+      type: String,
       required: [true, 'A book category is required!'],
       trim: true,
       enum: {
@@ -64,12 +64,12 @@ const bookSchema = mongoose.Schema(
       },
     },
     description: {
-      type: string,
+      type: String,
       required: [true, 'A book description is required!'],
     },
 
     imageCover: {
-      type: string,
+      type: String,
       required: [true, 'A book must have image cover!'],
     },
     slug: String,
