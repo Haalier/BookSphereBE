@@ -109,6 +109,7 @@ const bookSchema = mongoose.Schema(
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
     strictQuery: true,
+    minimize: true,
   }
 );
 
@@ -116,7 +117,6 @@ bookSchema.virtual('priceAfterDiscount').get(function () {
   if (this.priceDiscount) {
     return this.price - this.priceDiscount;
   }
-  return this.price;
 });
 
 bookSchema.pre('save', function (next) {
