@@ -19,8 +19,60 @@ exports.getBooks = async (req, res, next) => {
   }
 };
 
+exports.getBook = async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.bookId);
+    if (!book) {
+      return next(new AppError("Can't find book with this ID.", 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        book,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 exports.createBook = async (req, res, next) => {
   try {
-  } catch (err) {}
-  const book = await Book.create(req.body);
+    const book = await Book.create(req.body);
+    if (!book) {
+      return next(
+        new AppError("Something went wrong. Can't add this book."),
+        404
+      );
+    }
+    res.status(201).json({
+      status: 'success',
+      data: {
+        book,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.updateBook = async (req, res, next) => {
+  try {
+    const book = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!book) {
+      return next(new AppError("Can't find book with this ID.", 404));
+    }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        book,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
 };

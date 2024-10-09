@@ -70,7 +70,7 @@ const bookSchema = mongoose.Schema(
 
     imageCover: {
       type: String,
-      required: [true, 'A book must have image cover!'],
+      // required: [true, 'A book must have image cover!'],
     },
     slug: String,
     ratingsAverage: {
