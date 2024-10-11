@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const bookRoute = require('./routes/bookRoute');
+const userRoute = require('./routes/userRoute');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/v1/books', bookRoute);
+app.use('/api/v1/users', userRoute);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Cant find ${req.originalUrl}`, 404));

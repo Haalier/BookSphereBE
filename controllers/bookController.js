@@ -4,12 +4,9 @@ const AppError = require('../utils/appError');
 exports.getBooks = async (req, res, next) => {
   try {
     const books = await Book.find().exec();
-    if (!books.length > 0) {
-      return next(new AppError('There is no books', 404));
-    }
-
     res.status(200).json({
       status: 'success',
+      results: books.length,
       data: {
         books,
       },
