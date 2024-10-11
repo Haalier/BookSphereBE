@@ -5,6 +5,15 @@ const userController = require('../controllers/userController');
 
 router.post('/signup', authController.signUp);
 router.get('/login', authController.login);
-router.get('/', userController.getUsers);
+// Protects all routes after this middleware
+router.use(authController.protect);
 
+router.get('/me', userController.getMe, userController.getUser);
+router.patch('/updateMe', userController.updateMe);
+
+// Routes below this middleware are available only for admins
+router.use(authController.restrictTo('admin'));
+
+router.get('/', userController.getUsers);
+router.get('/:userId', userController.getUser);
 module.exports = router;

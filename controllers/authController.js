@@ -12,10 +12,11 @@ const signToken = (id) => {
 const createSendToken = (user, statusCode, res) => {
   try {
     const token = signToken(user._id);
+    const headers = new Headers({ Authorization: `Bearer ${token}` });
     console.log(token);
 
     user.password = undefined;
-
+    res.setHeaders(headers);
     res.status(statusCode).json({
       status: 'success',
       token,
@@ -61,14 +62,19 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
   let token;
+
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
   }
-  console.log(token);
+  console.log('TOKEN: ' + token);
   if (!token) {
     return next(
       new AppError(
@@ -78,7 +84,8 @@ exports.protect = async (req, res, next) => {
     );
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const freshUser = await User.findOne({ _id: decoded._id });
+  console.log(decoded);
+  const freshUser = await User.findOne({ _id: decoded.id });
   if (!freshUser) {
     return next(
       new AppError('The user belonging to this token no longer exists.'),
@@ -90,16 +97,15 @@ exports.protect = async (req, res, next) => {
       new AppError('User recently changed password! Please log in again.')
     );
   }
+  req.user = freshUser;
   next();
 };
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError("You don't have permission to perform this action")
-      );
+      next(new AppError("You don't have permission to perform this action"));
     }
+    next();
   };
-  next();
 };
