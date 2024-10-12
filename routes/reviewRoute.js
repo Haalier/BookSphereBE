@@ -1,7 +1,6 @@
 const express = require('express');
 const reviewController = require('../controllers/reviewController');
 const authController = require('../controllers/authController');
-const { restrictTo } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -16,10 +15,8 @@ router.get('/:reviewId', reviewController.getReview);
 router
   .route('/:reviewId')
   .get(reviewController.getReview)
-  .patch(
-    authController.restrictTo('user', 'admin'),
-    reviewController.updateReview
-  )
+  .patch(authController.restrictTo('admin'), reviewController.updateReview)
+  .patch(reviewController.updateReviewIfOwner)
   .delete(authController.restrictTo('admin'), reviewController.deleteReview)
   .delete(reviewController.deleteReviewIfOwner);
 
