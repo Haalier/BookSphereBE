@@ -56,12 +56,15 @@ exports.createReview = async (req, res, next) => {
 
 exports.updateReview = async (req, res, next) => {
   try {
+    let updatedReview;
     const { reviewId } = req.params;
+    const { id } = req.user;
 
-    const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
-      new: true,
-      runValidators: true,
-    }).exec();
+    updatedReview = await Review.findOneAndUpdate(
+      { _id: reviewId, user: id },
+      req.body,
+      { new: true, runValidators: true }
+    ).exec();
 
     if (!updatedReview) {
       return next(new AppError("Can't find review with this ID.", 404));
@@ -78,62 +81,24 @@ exports.updateReview = async (req, res, next) => {
   }
 };
 
-exports.updateReviewIfOwner = async (req, res, next) => {
-  try {
-    const { reviewId } = req.params;
-    const { userId } = req.user;
-
-    const updatedReview = await Review.findOneAndUpdate({
-      _id: reviewId,
-      user: { _id: userId },
-    });
-
-    if (!updatedReview) {
-      return next(new AppError('Invalid review ID / Forbidden.', 403));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        review: updatedReview,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// TO DO - ROUTE NOT WORKING SAME AS DELETE /
 
 exports.deleteReview = async (req, res, next) => {
   try {
     const { reviewId } = req.params;
-
-    const reviewDelete = await Review.findByIdAndDelete(reviewId).exec();
-
-    if (!reviewDelete) {
-      return next(new AppError("Can't find review with this ID.", 404));
+    let deletedReview;
+    if (req.user.role === 'user') {
+      const { id } = req.user;
+      deletedReview = await Review.findOneAndDelete({
+        _id: reviewId,
+        user: id,
+      }).exec();
+    } else if (req.user.role === 'admin') {
+      deletedReview = await Review.findByIdAndDelete(reviewId).exec();
     }
 
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.deleteReviewIfOwner = async (req, res, next) => {
-  try {
-    const { reviewId } = req.params;
-    const { userId } = req.user;
-
-    const deleteReview = await Review.findOneAndDelete({
-      _id: reviewId,
-      user: { _id: userId },
-    }).exec();
-
-    if (!deleteReview) {
-      return next(new AppError('Invalid review ID / Forbidden', 403));
+    if (!deletedReview) {
+      return next(new AppError("Can't find review with this ID.", 404));
     }
 
     res.status(204).json({
