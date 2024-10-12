@@ -53,36 +53,92 @@ exports.createReview = async (req, res, next) => {
 };
 
 exports.updateReview = async (req, res, next) => {
-  const { reviewId } = req.params;
+  try {
+    const { reviewId } = req.params;
 
-  const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
-    new: true,
-    runValidators: true,
-  }).exec();
+    const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
+      new: true,
+      runValidators: true,
+    }).exec();
 
-  if (!updatedReview) {
-    return next(new AppError("Can't find review with this ID.", 404));
+    if (!updatedReview) {
+      return next(new AppError("Can't find review with this ID.", 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        review: updatedReview,
+      },
+    });
+  } catch (err) {
+    next(err);
   }
+};
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      review: updatedReview,
-    },
-  });
+exports.updateReviewIfOwner = async (req, res, next) => {
+  try {
+    const { reviewId } = req.params;
+    const { userId } = req.user;
+
+    const updatedReview = await Review.findOneAndUpdate({
+      _id: reviewId,
+      user: { _id: userId },
+    });
+
+    if (!updatedReview) {
+      return next(new AppError('Invalid review ID / Forbidden.', 403));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        review: updatedReview,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.deleteReview = async (req, res, next) => {
-  const { reviewId } = req.params;
+  try {
+    const { reviewId } = req.params;
 
-  const reviewDelete = await Review.findByIdAndDelete(reviewId).exec();
+    const reviewDelete = await Review.findByIdAndDelete(reviewId).exec();
 
-  if (!reviewDelete) {
-    return next(new AppError("Can't find review with this ID.", 404));
+    if (!reviewDelete) {
+      return next(new AppError("Can't find review with this ID.", 404));
+    }
+
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    next(err);
   }
+};
 
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+exports.deleteReviewIfOwner = async (req, res, next) => {
+  try {
+    const { reviewId } = req.params;
+    const { userId } = req.user;
+
+    const deleteReview = await Review.findOneAndDelete({
+      _id: reviewId,
+      user: { _id: userId },
+    }).exec();
+
+    if (!deleteReview) {
+      return next(new AppError('Invalid review ID / Forbidden', 403));
+    }
+
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
