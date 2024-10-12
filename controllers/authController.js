@@ -56,9 +56,9 @@ exports.login = async (req, res, next) => {
       new AppError('Please enter a valid email address or password.')
     );
   }
-  const user = await User.findOne({ email: email });
-  if (!user) {
-    return next(new AppError('Cannot find user with this email.', 404));
+  const user = await User.findOne({ email: email }).select('+password');
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError('Incorrect email or password!', 401));
   }
   createSendToken(user, 200, res);
 };
