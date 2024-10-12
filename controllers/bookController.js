@@ -37,11 +37,7 @@ exports.getBook = async (req, res, next) => {
 exports.createBook = async (req, res, next) => {
   try {
     const book = await Book.create(req.body);
-    if (!book) {
-      return next(
-        new AppError("Something went wrong. Can't add this book.", 404)
-      );
-    }
+
     res.status(201).json({
       status: 'success',
       data: {
