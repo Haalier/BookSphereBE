@@ -198,7 +198,9 @@ exports.resetPassword = async (req, res, next) => {
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() },
-    }).exec();
+    })
+      .select('+password')
+      .exec();
 
     console.log(user);
 
@@ -206,6 +208,14 @@ exports.resetPassword = async (req, res, next) => {
       return next(new AppError('Link is invalid or has expired.'));
     }
 
+    if (await user.correctPassword(req.body.password, user.password)) {
+      return next(
+        new AppError(
+          'New password must be different from the previous password!',
+          400
+        )
+      );
+    }
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
     user.passwordResetToken = undefined;
