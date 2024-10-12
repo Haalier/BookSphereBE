@@ -40,6 +40,7 @@ exports.getReview = async (req, res, next) => {
 exports.createReview = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
+    if (req.params.bookId) req.body.book = req.params.bookId;
     const newReview = await Review.create(req.body);
 
     res.status(201).json({
