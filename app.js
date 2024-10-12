@@ -6,7 +6,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
-
+app.enable('trust proxy');
 // Logs for development
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

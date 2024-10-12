@@ -4,8 +4,11 @@ const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
 
 router.post('/signup', authController.signUp);
-router.get('/login', authController.login);
+router.post('/login', authController.login);
+router.post('/forgotPassword', authController.forgotPassword);
+router.patch('/resetPassword/:resetToken', authController.resetPassword);
 // Protects all routes after this middleware
+
 router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);

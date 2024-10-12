@@ -2,6 +2,9 @@ const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const nodemailer = require('nodemailer');
+const Mailgen = require('mailgen');
+const crypto = require('crypto');
 
 const signToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -57,7 +60,6 @@ exports.login = async (req, res, next) => {
   if (!user) {
     return next(new AppError('Cannot find user with this email.', 404));
   }
-
   createSendToken(user, 200, res);
 };
 
@@ -108,4 +110,111 @@ exports.restrictTo = (...roles) => {
     }
     next();
   };
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    console.log(req.user);
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return next(
+        new AppError(
+          'There is no user with that email address. Please try again.'
+        )
+      );
+    }
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.USER_MAIL,
+        pass: process.env.USER_MAIL_PASSWORD,
+      },
+    });
+
+    let MailGenerator = new Mailgen({
+      theme: 'default',
+      product: {
+        name: 'BookSphere',
+        link: 'https://booksphere.io/',
+      },
+    });
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+
+    let response = {
+      body: {
+        name: 'there',
+        intro: 'Reset Password',
+        action: {
+          instructions:
+            'To reset your password, please click the button below:',
+          button: {
+            color: '#22BC66',
+            text: 'Reset your password',
+            link: resetUrl,
+          },
+        },
+        outro: 'This mail was generated automatically. Do not respond.',
+      },
+    };
+
+    let mail = MailGenerator.generate(response);
+
+    let message = {
+      from: process.env.USER_MAIL,
+      to: req.body.email,
+      subject: 'Reset Password',
+      html: mail,
+    };
+
+    await transporter.sendMail(message);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'You should receive an email.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    console.log('Token from URL: ' + req.params.resetToken);
+
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.resetToken)
+      .digest('hex');
+
+    console.log('Hashed token: ' + hashedToken);
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    }).exec();
+
+    console.log(user);
+
+    if (!user) {
+      return next(new AppError('Link is invalid or has expired.'));
+    }
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    // Have to use save() method to run all document middlewares in schema with pre save
+    await user.save();
+
+    createSendToken(user, 200, res);
+  } catch (err) {
+    next(err);
+  }
 };
