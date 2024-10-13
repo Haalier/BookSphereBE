@@ -23,9 +23,27 @@ const cartSchema = new mongoose.Schema(
       unique: true,
     },
     items: [cartItemSchema],
+    total: {
+      type: Number,
+      default: 0,
+      min: [0, 'Total price cannot be negative.'],
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+cartSchema.pre('save', async function (next) {
+  try {
+    await this.populate('items.book');
+
+    this.total = this.items.reduce((accumulator, item) => {
+      return accumulator + item.book.price * item.quantity;
+    }, 0);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 const Cart = mongoose.model('Cart', cartSchema);
 module.exports = Cart;

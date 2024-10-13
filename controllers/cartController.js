@@ -71,3 +71,30 @@ exports.getCart = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.removeFromCart = async (req, res, next) => {
+  try {
+    const { bookId } = req.params;
+    const userId = req.user.id;
+
+    const cart = await Cart.findOne({ user: userId }).exec();
+    if (!cart) {
+      return next(new AppError('Cart not found.', 404));
+    }
+    // Using this instead of findByIdAndDelete to run pre save middleware
+    cart.items = cart.items.filter((item) => item.book.toString() !== bookId);
+
+    await cart.save();
+
+    await cart.populate('items.book');
+
+    res.stauts(204).json({
+      status: 'success',
+      data: {
+        cart,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
