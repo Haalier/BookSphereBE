@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Book = require('../models/bookModel');
-const reviewSchema = mongoose.Schema(
+const reviewSchema = new mongoose.Schema(
   {
     review: {
       type: String,
@@ -15,12 +15,12 @@ const reviewSchema = mongoose.Schema(
       max: 5,
     },
     book: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Book',
       required: [true, 'Review must belong to a book.'],
     },
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Review must belong to an user'],
     },
