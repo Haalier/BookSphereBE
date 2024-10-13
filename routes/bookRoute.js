@@ -7,6 +7,9 @@ const router = express.Router();
 router.use('/:bookId/reviews/', reviewRouter);
 
 router.route('/').get(bookController.getBooks).post(bookController.createBook);
-router.get('/:bookId', bookController.getBook);
-router.patch('/:bookId', bookController.updateBook);
+router
+  .route('/:bookId')
+  .get(bookController.getBook)
+  .patch(bookController.updateBook);
+
 module.exports = router;
