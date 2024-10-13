@@ -1,6 +1,7 @@
 const Cart = require('../models/cartModel');
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
+const req = require('express/lib/request');
 
 exports.addToCart = async (req, res, next) => {
   try {
@@ -89,6 +90,43 @@ exports.removeFromCart = async (req, res, next) => {
     await cart.populate('items.book');
 
     res.stauts(204).json({
+      status: 'success',
+      data: {
+        cart,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateCartItem = async (req, res, next) => {
+  try {
+    const { bookId, quantity } = req.body;
+    const userId = req.user.id;
+
+    if (quantity < 1) {
+      return next(new AppError('Quantity must be at least 1.', 400));
+    }
+
+    const cart = await Cart.findOne({ user: userId }).exec();
+    if (!cart) {
+      return next(new AppError('Cart not found.', 404));
+    }
+
+    const item = cart.items.find((item) => item.book.toString() === bookId);
+
+    if (!item) {
+      return next(new AppError('Book in cart not found.', 404));
+    }
+
+    item.quantity = quantity;
+
+    await cart.save();
+
+    await cart.populate('items.book');
+
+    res.status(200).json({
       status: 'success',
       data: {
         cart,
