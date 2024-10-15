@@ -9,7 +9,7 @@ const multerStorage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = file.mimetype.split('/')[1];
-    cb(null, `book-${Date.now()}.${ext}`);
+    cb(null, `book-${req.user.id}${Date.now()}.${ext}`);
   },
 });
 
@@ -86,7 +86,6 @@ exports.createBook = async (req, res, next) => {
 };
 
 exports.updateBook = async (req, res, next) => {
-  console.log(req.file);
   try {
     const book = await Book.findByIdAndUpdate(
       req.params.bookId,
