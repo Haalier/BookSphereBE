@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const multer = require('multer');
 const bookRoute = require('./routes/bookRoute');
 const userRoute = require('./routes/userRoute');
 const reviewRoute = require('./routes/reviewRoute');
@@ -15,6 +16,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Testing middleware
 app.use((req, res, next) => {

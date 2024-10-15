@@ -1,6 +1,32 @@
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
 const ApiFeatures = require('../utils/apiFeatures');
+const multer = require('multer');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images/books');
+  },
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `book-${Date.now()}.${ext}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadBookPhoto = upload.single('photo');
 
 exports.getBooks = async (req, res, next) => {
   try {
@@ -43,6 +69,8 @@ exports.getBook = async (req, res, next) => {
 };
 
 exports.createBook = async (req, res, next) => {
+  console.log(req.file);
+  console.log(req.body);
   try {
     const book = await Book.create(req.body);
 
@@ -58,11 +86,16 @@ exports.createBook = async (req, res, next) => {
 };
 
 exports.updateBook = async (req, res, next) => {
+  console.log(req.file);
   try {
-    const book = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const book = await Book.findByIdAndUpdate(
+      req.params.bookId,
+      { ...req.body, photo: req.file ? req.file.filename : undefined },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
