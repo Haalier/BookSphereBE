@@ -130,7 +130,8 @@ bookSchema.virtual('priceDiscountPercent').get(function () {
 });
 
 bookSchema.pre('save', function (next) {
-  this.slug = slugify(this.title, { lower: true, remove: /':/g });
+  const sanitizedTitle = this.title.replace(/[':]/g, '');
+  this.slug = slugify(sanitizedTitle, { lower: true });
   next();
 });
 
