@@ -129,14 +129,8 @@ bookSchema.virtual('priceDiscountPercent').get(function () {
   }
 });
 
-bookSchema.virtual('imageUrl').get(function () {
-  if (this.photo) {
-    return `${re}`;
-  }
-});
-
 bookSchema.pre('save', function (next) {
-  this.slug = slugify(this.title, { lower: true, remove: /:/g });
+  this.slug = slugify(this.title, { lower: true, remove: /':/g });
   next();
 });
 
