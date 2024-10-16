@@ -73,6 +73,7 @@ exports.createBook = async (req, res, next) => {
   console.log(req.body);
   try {
     const book = await Book.create(req.body);
+    book.photoUrl = `${req.protocol}//${req.get('host')}/public/images/books/${book.photo}`;
 
     res.status(201).json({
       status: 'success',
@@ -98,6 +99,8 @@ exports.updateBook = async (req, res, next) => {
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
+    book.photoUrl = `${req.protocol}//${req.get('host')}/public/images/books/${book.photo}`;
+
     res.status(200).json({
       status: 'success',
       data: {

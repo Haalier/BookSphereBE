@@ -72,6 +72,11 @@ const bookSchema = new mongoose.Schema(
       type: String,
       // required: [true, 'A book must have image cover!'],
     },
+
+    photoUrl: {
+      type: String,
+    },
+
     slug: String,
     ratingsAverage: {
       type: Number,
@@ -124,10 +129,18 @@ bookSchema.virtual('priceDiscountPercent').get(function () {
   }
 });
 
+bookSchema.virtual('imageUrl').get(function () {
+  if (this.photo) {
+    return `${re}`;
+  }
+});
+
 bookSchema.pre('save', function (next) {
   this.slug = slugify(this.title, { lower: true, remove: /:/g });
   next();
 });
+
+bookSchema.pre();
 
 const Book = mongoose.model('Book', bookSchema);
 module.exports = Book;
