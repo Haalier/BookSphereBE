@@ -1,6 +1,5 @@
 const express = require('express');
 const morgan = require('morgan');
-const multer = require('multer');
 const path = require('path');
 const bookRoute = require('./routes/bookRoute');
 const userRoute = require('./routes/userRoute');
@@ -17,7 +16,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
-app.use(express.urlencoded());
 app.use(
   '/public/images/books',
   express.static(path.join(__dirname, 'public/images/books'))

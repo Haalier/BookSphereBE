@@ -30,6 +30,7 @@ exports.uploadBookPhoto = upload.single('photo');
 
 exports.getBooks = async (req, res, next) => {
   try {
+    let totalProducts = await Book.find().countDocuments();
     const apiFeatures = new ApiFeatures(Book.find(), req.query)
       .filter()
       .sort()
@@ -40,7 +41,7 @@ exports.getBooks = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
-      results: doc.length,
+      results: totalProducts,
       data: {
         books: doc,
       },
@@ -99,8 +100,8 @@ exports.updateBook = async (req, res, next) => {
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
-    book.photoUrl = `${req.protocol}//${req.get('host')}/public/images/books/${book.photo}`;
-
+    book.photoUrl = `${req.protocol}://${req.get('host')}/public/images/books/${book.photo}`;
+    book.save();
     res.status(200).json({
       status: 'success',
       data: {
