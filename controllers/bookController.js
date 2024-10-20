@@ -69,6 +69,28 @@ exports.getBook = async (req, res, next) => {
   }
 };
 
+exports.getBookByIdSlug = async (req, res, next) => {
+  try {
+    const book = await Book.find({
+      _id: req.params.bookId,
+      slug: req.params.slug,
+    });
+
+    if (!book) {
+      return next(new AppError("Can't find book with this ID/slug.", 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        book,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 exports.createBook = async (req, res, next) => {
   console.log(req.file);
   console.log(req.body);

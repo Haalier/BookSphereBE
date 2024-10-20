@@ -118,6 +118,17 @@ const bookSchema = new mongoose.Schema(
   }
 );
 
+bookSchema.index({ price: 1, ratingsAverage: -1 });
+bookSchema.index({ slug: 1 });
+bookSchema.index({ category: 1 });
+bookSchema.index({ author: 1 });
+
+bookSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'book',
+  localField: '_id',
+});
+
 bookSchema.virtual('priceAfterDiscount').get(function () {
   if (this.priceDiscount) {
     return Math.round((this.price - this.priceDiscount) * 100) / 100;

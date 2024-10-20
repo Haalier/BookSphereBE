@@ -26,4 +26,6 @@ router
     bookController.updateBook
   );
 
+router.get('/:bookId/:slug', bookController.getBookByIdSlug);
+
 module.exports = router;
