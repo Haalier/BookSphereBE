@@ -3,7 +3,13 @@ const AppError = require('../utils/appError');
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const reviews = await Review.find().exec();
+    const bookId = req.params.bookId;
+    let reviews;
+    if (bookId) {
+      reviews = await Review.find({ book: bookId }).populate('user').exec();
+    } else {
+      reviews = await Review.find().populate('user').exec();
+    }
 
     res.status(200).json({
       status: 'success',
@@ -20,7 +26,7 @@ exports.getReviews = async (req, res, next) => {
 exports.getReview = async (req, res, next) => {
   try {
     const { reviewId } = req.params;
-    const review = await Review.findById(reviewId).exec();
+    const review = await Review.findById(reviewId).populate('user').exec();
 
     if (!review) {
       return next(new AppError("Can't find review with this ID.", 404));

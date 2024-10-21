@@ -5,7 +5,7 @@ const reviewRouter = require('./reviewRoute');
 
 const router = express.Router();
 
-router.use('/:bookId/reviews/', reviewRouter);
+router.use('/:bookId/reviews', reviewRouter);
 
 router
   .route('/')

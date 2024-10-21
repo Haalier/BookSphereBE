@@ -31,7 +31,10 @@ exports.uploadBookPhoto = upload.single('photo');
 exports.getBooks = async (req, res, next) => {
   try {
     let totalProducts = await Book.find().countDocuments();
-    const apiFeatures = new ApiFeatures(Book.find(), req.query)
+    const apiFeatures = new ApiFeatures(
+      Book.find().populate('reviews'),
+      req.query
+    )
       .filter()
       .sort()
       .limitFields()
@@ -53,7 +56,7 @@ exports.getBooks = async (req, res, next) => {
 
 exports.getBook = async (req, res, next) => {
   try {
-    const book = await Book.findById(req.params.bookId);
+    const book = await Book.findById(req.params.bookId).populate('reviews');
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
