@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 const path = require('path');
 const bookRoute = require('./routes/bookRoute');
 const userRoute = require('./routes/userRoute');
@@ -15,6 +16,14 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+app.use(
+  cors({
+    origin: '*',
+    methods: 'GET, POST, PUT, DELETE, PATCH',
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(
   '/public/images/books',
@@ -26,14 +35,6 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   console.log(req.requestTime);
   console.log(req.headers);
-  next();
-});
-
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   next();
 });
 
