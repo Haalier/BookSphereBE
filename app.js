@@ -6,6 +6,7 @@ const bookRoute = require('./routes/bookRoute');
 const userRoute = require('./routes/userRoute');
 const reviewRoute = require('./routes/reviewRoute');
 const cartRoute = require('./routes/cartRoute');
+const orderRoute = require('./routes/orderRoute');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -43,6 +44,7 @@ app.use('/api/v1/books', bookRoute);
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/reviews', reviewRoute);
 app.use('/api/v1/cart', cartRoute);
+app.use('api/v1/orders', orderRoute);
 app.all('*', (req, res, next) => {
   next(new AppError(`Cant find ${req.originalUrl}`, 404));
 });
