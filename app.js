@@ -7,6 +7,7 @@ const userRoute = require('./routes/userRoute');
 const reviewRoute = require('./routes/reviewRoute');
 const cartRoute = require('./routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
+const searchRoute = require('./routes/searchRoute');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -16,7 +17,6 @@ app.enable('trust proxy');
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-
 app.use(
   cors({
     origin: '*',
@@ -44,7 +44,8 @@ app.use('/api/v1/books', bookRoute);
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/reviews', reviewRoute);
 app.use('/api/v1/cart', cartRoute);
-app.use('api/v1/orders', orderRoute);
+app.use('/api/v1/orders', orderRoute);
+app.use('/api/v1/search', searchRoute);
 app.all('*', (req, res, next) => {
   next(new AppError(`Cant find ${req.originalUrl}`, 404));
 });

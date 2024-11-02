@@ -2,6 +2,7 @@ const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
 const ApiFeatures = require('../utils/apiFeatures');
 const multer = require('multer');
+const meiliSearch = require('../utils/meiliSearch');
 
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -98,6 +99,10 @@ exports.createBook = async (req, res, next) => {
     const book = await Book.create(req.body);
     book.photoUrl = `${req.protocol}//${req.get('host')}/public/images/books/${book.photo}`;
 
+    if (book) {
+      await meiliSearch.addBookToSearch();
+    }
+
     res.status(201).json({
       status: 'success',
       data: {
@@ -122,8 +127,10 @@ exports.updateBook = async (req, res, next) => {
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
+    await meiliSearch.addBookToSearch();
     book.photoUrl = `${req.protocol}://${req.get('host')}/public/images/books/${book.photo}`;
-    book.save();
+    await book.save();
+
     res.status(200).json({
       status: 'success',
       data: {
