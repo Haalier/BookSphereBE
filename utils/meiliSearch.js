@@ -15,22 +15,46 @@ const setPrimaryKey = async () => {
   }
 };
 
-exports.addBookToSearch = async (req, res, next) => {
-  try {
-    await setPrimaryKey();
+exports.addBookToSearch = (bookId) => {
+  return async (req, res, next) => {
+    try {
+      await setPrimaryKey();
+      const book = await Book.findById(bookId).exec();
+      const bookToSearch = book.map((book) => ({
+        _id: book._id,
+        title: book.title,
+        author: book.author,
+        category: book.category,
+      }));
 
-    const books = await Book.find();
-    let response = await index.addDocuments(books, { primaryKey: '_id' });
+      await index.addDocuments(bookToSearch, {
+        primaryKey: '_id',
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+};
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        response,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
+exports.updateBookToSearch = (bookId) => {
+  return async (req, res, next) => {
+    try {
+      await setPrimaryKey();
+      await index.updateDocuments(bookId, { primaryKey: '_id' });
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+
+exports.deleteBookToSearch = (bookId) => {
+  return async (req, res, next) => {
+    try {
+      await index.deleteDocument(bookId);
+    } catch (err) {
+      next(err);
+    }
+  };
 };
 exports.searchBooks = async (req, res, next) => {
   try {

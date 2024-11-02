@@ -100,7 +100,7 @@ exports.createBook = async (req, res, next) => {
     book.photoUrl = `${req.protocol}//${req.get('host')}/public/images/books/${book.photo}`;
 
     if (book) {
-      await meiliSearch.addBookToSearch();
+      await meiliSearch.addBookToSearch(book._id);
     }
 
     res.status(201).json({
@@ -127,10 +127,9 @@ exports.updateBook = async (req, res, next) => {
     if (!book) {
       return next(new AppError("Can't find book with this ID.", 404));
     }
-    await meiliSearch.addBookToSearch();
     book.photoUrl = `${req.protocol}://${req.get('host')}/public/images/books/${book.photo}`;
+    await meiliSearch.updateBookToSearch(book._id);
     await book.save();
-
     res.status(200).json({
       status: 'success',
       data: {
@@ -139,5 +138,20 @@ exports.updateBook = async (req, res, next) => {
     });
   } catch (err) {
     return next(err);
+  }
+};
+
+exports.deleteBook = async (req, res, next) => {
+  try {
+    const { bookId } = req.params;
+    await Book.findByIdAndDelete(bookId);
+    await meiliSearch.deleteBookToSearch(bookId);
+
+    res.status(200).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    next(err);
   }
 };
