@@ -63,8 +63,8 @@ reviewSchema.statics.calcAverageRatings = async function (bookId) {
   }
 };
 // Middleware to calculate ratings on book everytime review is saved or created
-reviewSchema.post('save', function () {
-  this.constructor.calcAverageRatings(this.book);
+reviewSchema.post('save', async function () {
+  await this.constructor.calcAverageRatings(this.book);
 });
 // Middleware to calculate ratings on book everytime review is updated
 // works with 'findByIdAnd...' because behind the scenes it is same method as 'findOneAnd...'

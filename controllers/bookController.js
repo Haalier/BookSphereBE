@@ -84,7 +84,7 @@ exports.getBookByIdSlug = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       data: {
-        book,
+        book: book[0],
       },
     });
   } catch (err) {

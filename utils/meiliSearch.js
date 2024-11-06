@@ -58,13 +58,19 @@ exports.deleteBookToSearch = (bookId) => {
 };
 exports.searchBooks = async (req, res, next) => {
   try {
+    let data;
     console.log('QUERY', req.query);
     const query = req.query.q || '';
     const search = await index.search(query);
+    console.log(search.hits.length);
+    console.log(search.hits);
+    const ids = search.hits.map((hit) => hit._id);
+    data = await Book.find({ _id: { $in: ids } }).exec();
+
     res.status(200).json({
       status: 'success',
       results: search.hits.length,
-      data: search.hits,
+      data,
     });
   } catch (err) {
     next(err);
