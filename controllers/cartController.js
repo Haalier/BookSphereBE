@@ -33,9 +33,12 @@ exports.addToCart = async (req, res, next) => {
 
       await cart.save();
     }
-
+    const totalItems = cart.items.reduce((acc, item) => {
+      return (acc += item.quantity);
+    }, 0);
     res.status(200).json({
       status: 'success',
+      totalItems,
       data: {
         cart,
       },
@@ -50,7 +53,8 @@ exports.getCart = async (req, res, next) => {
     const userId = req.user.id;
 
     const cart = await Cart.findOne({ user: userId })
-      .populate('items.book')
+      .populate('items.book', '-stock -priceDiscount -slug -pages -description')
+      .select('-__v')
       .exec();
 
     if (!cart) {

@@ -70,6 +70,7 @@ const bookSchema = new mongoose.Schema(
 
     photo: {
       type: String,
+      select: false,
       // required: [true, 'A book must have image cover!'],
     },
 

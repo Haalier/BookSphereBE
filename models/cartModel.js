@@ -29,15 +29,17 @@ const cartSchema = new mongoose.Schema(
       min: [0, 'Total price cannot be negative.'],
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 cartSchema.pre('save', async function (next) {
   try {
-    await this.populate('items.book');
+    await this.populate('items.book', 'title price');
 
     this.total = this.items.reduce((accumulator, item) => {
-      return accumulator + item.book.price * item.quantity;
+      return (
+        Math.round((accumulator + item.book.price * item.quantity) * 100) / 100
+      );
     }, 0);
     next();
   } catch (err) {
