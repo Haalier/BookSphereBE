@@ -1,7 +1,7 @@
 const Cart = require('../models/cartModel');
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
-const req = require('express/lib/request');
+const mongoose = require('mongoose');
 
 exports.addToCart = async (req, res, next) => {
   try {
@@ -33,15 +33,10 @@ exports.addToCart = async (req, res, next) => {
 
       await cart.save();
     }
-    const totalItems = cart.items.reduce((acc, item) => {
-      return (acc += item.quantity);
-    }, 0);
+
     res.status(200).json({
       status: 'success',
-      totalItems,
-      data: {
-        cart,
-      },
+      data: cart,
     });
   } catch (err) {
     next(err);
@@ -53,24 +48,24 @@ exports.getCart = async (req, res, next) => {
     const userId = req.user.id;
 
     const cart = await Cart.findOne({ user: userId })
-      .populate('items.book', '-stock -priceDiscount -slug -pages -description')
-      .select('-__v')
+      .populate(
+        'items.book',
+        '-stock -priceDiscount -slug -pages -description -ratingsAverage -ratingsQuantity -__v -createdAt -updatedAt' +
+          ' -category'
+      )
+      .select('-__v -_id')
       .exec();
 
     if (!cart) {
       return res.status(200).json({
         status: 'success',
-        data: {
-          cart: { items: [] },
-        },
+        data: { items: [] },
       });
     }
 
     res.status(200).json({
       status: 'success',
-      data: {
-        cart,
-      },
+      data: cart,
     });
   } catch (err) {
     next(err);
@@ -98,6 +93,25 @@ exports.removeFromCart = async (req, res, next) => {
       data: {
         cart,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCartItemCount = async (req, res, next) => {
+  try {
+    const count = await Cart.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(req.user.id) } },
+      { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
+      { $group: { _id: null, totalItems: { $sum: '$items.quantity' } } },
+    ]);
+
+    const totalItems = count[0]?.totalItems || 0;
+
+    res.status(200).json({
+      status: 'success',
+      totalItems,
     });
   } catch (err) {
     next(err);

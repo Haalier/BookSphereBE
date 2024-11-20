@@ -14,23 +14,25 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
-const cartSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User reference is required.'],
-      unique: true,
-    },
-    items: [cartItemSchema],
-    total: {
-      type: Number,
-      default: 0,
-      min: [0, 'Total price cannot be negative.'],
-    },
+const cartSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'User reference is required.'],
+    unique: true,
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
-);
+  items: [cartItemSchema],
+  totalItems: {
+    type: Number,
+    default: 0,
+    min: [0, 'Total items cannot be negative.'],
+  },
+  total: {
+    type: Number,
+    default: 0,
+    min: [0, 'Total price cannot be negative.'],
+  },
+});
 
 cartSchema.pre('save', async function (next) {
   try {
@@ -41,6 +43,12 @@ cartSchema.pre('save', async function (next) {
         Math.round((accumulator + item.book.price * item.quantity) * 100) / 100
       );
     }, 0);
+
+    this.totalItems = this.items.reduce(
+      (accumulator, item) => accumulator + item.quantity,
+      0
+    );
+
     next();
   } catch (err) {
     next(err);

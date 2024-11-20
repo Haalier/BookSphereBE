@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(authController.protect, authController.restrictTo('user'));
 
 router.get('/', cartController.getCart);
+router.get('/count', cartController.getCartItemCount);
 router.post('/add', cartController.addToCart);
 router
   .route('/:bookId')

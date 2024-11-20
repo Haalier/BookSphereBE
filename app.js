@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 app.use(
   cors({
-    origin: '*',
+    origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
     methods: 'GET, POST, PUT, DELETE, PATCH',
     credentials: true,
   })

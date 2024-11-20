@@ -7,6 +7,7 @@ router.post('/signup', authController.signUp);
 router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
+
 // Protects all routes after this middleware
 
 router.use(authController.protect);

@@ -114,8 +114,9 @@ exports.restrictTo = (...roles) => {
 
 exports.forgotPassword = async (req, res, next) => {
   try {
-    console.log(req.user);
     const user = await User.findOne({ email: req.body.email }).exec();
+    console.log(req.body.email);
+    console.log('FORGOT USER:', user);
     if (!user) {
       return next(
         new AppError(
@@ -145,7 +146,7 @@ exports.forgotPassword = async (req, res, next) => {
       },
     });
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    const resetUrl = `${req.protocol}://${process.env.RESET_HOST}/reset-password/${resetToken}`;
 
     let response = {
       body: {
