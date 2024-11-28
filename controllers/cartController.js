@@ -82,17 +82,15 @@ exports.removeFromCart = async (req, res, next) => {
       return next(new AppError('Cart not found.', 404));
     }
     // Using this instead of findByIdAndDelete to run pre save middleware
-    cart.items = cart.items.filter((item) => item.book.toString() !== bookId);
+    cart.items = cart.items.filter((item) => {
+      return item.book.toString() !== bookId;
+    });
 
     await cart.save();
 
-    await cart.populate('items.book');
-
-    res.stauts(204).json({
+    res.status(204).json({
       status: 'success',
-      data: {
-        cart,
-      },
+      data: null,
     });
   } catch (err) {
     next(err);
