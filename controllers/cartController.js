@@ -1,7 +1,7 @@
+const mongoose = require('mongoose');
 const Cart = require('../models/cartModel');
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
-const mongoose = require('mongoose');
 
 exports.addToCart = async (req, res, next) => {
   try {
@@ -82,9 +82,7 @@ exports.removeFromCart = async (req, res, next) => {
       return next(new AppError('Cart not found.', 404));
     }
     // Using this instead of findByIdAndDelete to run pre save middleware
-    cart.items = cart.items.filter((item) => {
-      return item.book.toString() !== bookId;
-    });
+    cart.items = cart.items.filter((item) => item.book.toString() !== bookId);
 
     await cart.save();
 
@@ -105,7 +103,7 @@ exports.getCartItemCount = async (req, res, next) => {
       { $group: { _id: null, totalItems: { $sum: '$items.quantity' } } },
     ]);
 
-    const totalItems = count[0]?.totalItems || 0;
+    const totalItems = count[0].totalItems || 0;
 
     res.status(200).json({
       status: 'success',
@@ -118,7 +116,8 @@ exports.getCartItemCount = async (req, res, next) => {
 
 exports.updateCartItem = async (req, res, next) => {
   try {
-    const { bookId, quantity } = req.body;
+    const { bookId } = req.params;
+    const { quantity } = req.body;
     const userId = req.user.id;
 
     if (quantity < 1) {
@@ -130,8 +129,8 @@ exports.updateCartItem = async (req, res, next) => {
       return next(new AppError('Cart not found.', 404));
     }
 
+    // eslint-disable-next-line no-shadow
     const item = cart.items.find((item) => item.book.toString() === bookId);
-
     if (!item) {
       return next(new AppError('Book in cart not found.', 404));
     }
