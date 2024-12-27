@@ -12,6 +12,17 @@ const orderItemSchema = new mongoose.Schema({
     min: [1, 'Quantity of books should be at least 1.'],
     default: 1,
   },
+  title: {
+    type: String,
+    required: [true, 'Book must have a title.'],
+  },
+  author: {
+    type: String,
+    required: [true, 'Book must have an author.'],
+  },
+  photoUrl: {
+    type: String,
+  },
   price: {
     type: Number,
     required: true,

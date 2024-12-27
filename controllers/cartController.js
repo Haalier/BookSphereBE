@@ -138,14 +138,9 @@ exports.updateCartItem = async (req, res, next) => {
     item.quantity = quantity;
 
     await cart.save();
-
-    await cart.populate('items.book');
-
     res.status(200).json({
       status: 'success',
-      data: {
-        cart,
-      },
+      item,
     });
   } catch (err) {
     next(err);

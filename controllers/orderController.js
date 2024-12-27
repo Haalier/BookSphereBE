@@ -38,7 +38,9 @@ exports.getOrder = async (req, res, next) => {
 exports.checkoutCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const cart = await Cart.findById(userId).populate('items.book');
+    const cart = await Cart.findOne({ user: userId })
+      .populate('items.book', 'title author photoUrl price')
+      .exec();
 
     if (!cart || cart.items.length === 0) {
       return next(new AppError('Your cart is empty', 400));
@@ -49,7 +51,10 @@ exports.checkoutCart = async (req, res, next) => {
       items: cart.items.map((item) => ({
         book: item.book._id,
         quantity: item.quantity,
-        price: item.price,
+        price: item.book.price,
+        title: item.book.title,
+        author: item.book.author,
+        photoUrl: item.book.photoUrl,
       })),
       total: cart.total,
     });
