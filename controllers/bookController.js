@@ -1,7 +1,7 @@
+const multer = require('multer');
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
 const ApiFeatures = require('../utils/apiFeatures');
-const multer = require('multer');
 const meiliSearch = require('../utils/meiliSearch');
 
 const multerStorage = multer.diskStorage({
@@ -31,7 +31,10 @@ exports.uploadBookPhoto = upload.single('photo');
 
 exports.getBooks = async (req, res, next) => {
   try {
-    let totalProducts = await Book.find().countDocuments();
+    const countFeatures = new ApiFeatures(Book.find(), req.query).filter();
+
+    const totalFiltered = await countFeatures.query.countDocuments();
+
     const apiFeatures = new ApiFeatures(Book.find(), req.query)
       .filter()
       .sort()
@@ -42,7 +45,7 @@ exports.getBooks = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
-      results: totalProducts,
+      results: totalFiltered,
       data: {
         books: doc,
       },

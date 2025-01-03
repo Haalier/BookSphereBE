@@ -11,7 +11,6 @@ class ApiFeatures {
     excludedFields.forEach((el) => delete queryObj[el]);
 
     let queryStr = JSON.stringify(queryObj);
-    console.log(queryStr);
     // Regular expression to replace keywords with mongoDB operators like $lte
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     this.query = this.query.find(JSON.parse(queryStr));
