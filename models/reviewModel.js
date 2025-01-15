@@ -5,8 +5,8 @@ const reviewSchema = new mongoose.Schema(
     review: {
       type: String,
       required: [true, 'Review cannot be empty'],
-      minLength: [5, 'Review must have at least 5 characters.'],
-      maxLength: [250, 'Review max length is 250 characters.'],
+      minLength: [2, 'Review must have at least 2 characters.'],
+      maxLength: [350, 'Review max length is 350 characters.'],
     },
     rating: {
       type: Number,
@@ -70,7 +70,9 @@ reviewSchema.post('save', async function () {
 // works with 'findByIdAnd...' because behind the scenes it is same method as 'findOneAnd...'
 // in POST middleware we get 'docs' parameter which is executed document.
 reviewSchema.post(/^findOneAnd/, async function (docs) {
-  await docs.constructor.calcAverageRatings(docs.book);
+  if (docs) {
+    await docs.constructor.calcAverageRatings(docs.book);
+  }
 });
 
 const Review = mongoose.model('Review', reviewSchema);

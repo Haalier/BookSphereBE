@@ -1,5 +1,6 @@
 const Review = require('../models/reviewModel');
 const AppError = require('../utils/appError');
+const mongoose = require('mongoose');
 
 exports.getReviews = async (req, res, next) => {
   try {
@@ -64,11 +65,18 @@ exports.updateReview = async (req, res, next) => {
   try {
     let updatedReview;
     const { reviewId } = req.params;
-    const { id } = req.user;
+    const { id: userId } = req.user;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(reviewId) ||
+      !mongoose.Types.ObjectId.isValid(userId)
+    ) {
+      return next(new AppError('Invalid ID format.', 400));
+    }
 
     updatedReview = await Review.findOneAndUpdate(
-      { _id: reviewId, user: id },
-      req.body,
+      { _id: reviewId, user: userId },
+      { review: req.body.review, rating: req.body.rating },
       { new: true, runValidators: true }
     ).exec();
 
@@ -78,16 +86,12 @@ exports.updateReview = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
-      data: {
-        review: updatedReview,
-      },
+      reviewData: updatedReview,
     });
   } catch (err) {
     next(err);
   }
 };
-
-// TO DO - ROUTE NOT WORKING SAME AS DELETE /
 
 exports.deleteReview = async (req, res, next) => {
   try {
