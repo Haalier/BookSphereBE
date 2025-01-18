@@ -5,12 +5,16 @@ const AppError = require('../utils/appError');
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find().exec();
+    const userId = req.user.id;
+    const orders = await Order.find({
+      user: userId,
+    }).exec();
 
     res.status(200).json({
       status: 'success',
       results: orders.length,
-      data: orders,
+      user: req.user.id,
+      orders,
     });
   } catch (err) {
     next(err);
@@ -19,7 +23,8 @@ exports.getOrders = async (req, res, next) => {
 
 exports.getOrder = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.orderId);
+    const userId = req.user.id;
+    const order = await Order.findOne({ user: userId, id: req.params.orderId });
     if (!order) {
       return next(new AppError("Can't find order with this ID.", 404));
     }

@@ -30,32 +30,26 @@ const orderItemSchema = new mongoose.Schema({
   },
 });
 
-const orderSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User reference is required.'],
-    },
-    items: [orderItemSchema],
-    total: {
-      type: Number,
-      default: 0,
-      min: [0, 'Total price cannot be negative.'],
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'completed', 'canceled'],
-      default: 'pending',
-    },
+const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'User reference is required.'],
+    select: false,
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
-);
+  items: [orderItemSchema],
+  total: {
+    type: Number,
+    default: 0,
+    min: [0, 'Total price cannot be negative.'],
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'canceled'],
+    default: 'pending',
+  },
+});
 
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;

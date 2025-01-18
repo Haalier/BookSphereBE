@@ -4,7 +4,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const orderController = require('../controllers/orderController');
 
-router.use(authController.protect);
+router.use(authController.protect, authController.restrictTo('user'));
 
 router.route('/').get(orderController.getOrders);
 router.post('/checkout', orderController.checkoutCart);
