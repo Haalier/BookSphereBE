@@ -14,6 +14,8 @@ class ApiFeatures {
     for (let [key, value] of Object.entries(queryObj)) {
       if (!value) {
         delete queryObj[key];
+      } else if (key === 'category') {
+        queryObj[key] = { $in: value.split(',') };
       }
     }
 
