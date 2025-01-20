@@ -28,6 +28,7 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
+  slug: String,
 });
 
 const orderSchema = new mongoose.Schema({

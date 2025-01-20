@@ -44,7 +44,7 @@ exports.checkoutCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const cart = await Cart.findOne({ user: userId })
-      .populate('items.book', 'title author photoUrl price')
+      .populate('items.book', 'title author photoUrl price slug')
       .exec();
 
     if (!cart || cart.items.length === 0) {
@@ -57,12 +57,15 @@ exports.checkoutCart = async (req, res, next) => {
         book: item.book._id,
         quantity: item.quantity,
         price: item.book.price,
+        slug: item.book.slug,
         title: item.book.title,
         author: item.book.author,
         photoUrl: item.book.photoUrl,
       })),
       total: cart.total,
     });
+
+    console.log('ORDER: ', order);
 
     cart.items = [];
     cart.total = 0;
