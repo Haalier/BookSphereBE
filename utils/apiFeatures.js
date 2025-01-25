@@ -9,13 +9,13 @@ class ApiFeatures {
     // Excluding parameters to ensure they don't interfere with the filtering logic
     const excludedFields = ['sort', 'fields', 'page', 'limit'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    console.log('QUERY OBJ: ', queryObj);
 
     for (let [key, value] of Object.entries(queryObj)) {
       if (!value) {
         delete queryObj[key];
       } else if (key === 'category') {
-        queryObj[key] = { $in: value.split(',') };
+        const categories = value.split(',').map((cat) => cat.trim());
+        queryObj[key] = { $in: categories };
       }
     }
 
@@ -23,6 +23,7 @@ class ApiFeatures {
     // Regular expression to replace keywords with mongoDB operators like $lte
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     console.log('QUERY:', queryStr);
+
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
