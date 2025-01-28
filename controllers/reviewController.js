@@ -15,9 +15,23 @@ exports.getReviews = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       results: reviews.length,
-      data: {
-        reviews,
-      },
+      reviews,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getMyReviews = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const reviews = await Review.find({ user: userId })
+      .populate('book', 'author title')
+      .exec();
+
+    res.status(200).json({
+      status: 'success',
+      reviews,
     });
   } catch (err) {
     next(err);

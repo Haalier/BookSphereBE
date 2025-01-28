@@ -5,6 +5,7 @@ const path = require('path');
 const bookRoute = require('./routes/bookRoute');
 const userRoute = require('./routes/userRoute');
 const reviewRoute = require('./routes/reviewRoute');
+const myReviewsRoute = require('./routes/myReviewsRoute');
 const cartRoute = require('./routes/cartRoute');
 const orderRoute = require('./routes/orderRoute');
 const searchRoute = require('./routes/searchRoute');
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/books', bookRoute);
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/reviews', reviewRoute);
+app.use('/api/v1/my-reviews', myReviewsRoute);
 app.use('/api/v1/cart', cartRoute);
 app.use('/api/v1/orders', orderRoute);
 app.use('/api/v1/search', searchRoute);
