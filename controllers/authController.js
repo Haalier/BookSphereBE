@@ -41,6 +41,7 @@ exports.signUp = async (req, res, next) => {
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
       passwordChangedAt: req.body.passwordChangedAt,
+      active: req.body.active,
     });
 
     createSendToken(newUser, 201, res);
@@ -56,9 +57,14 @@ exports.login = async (req, res, next) => {
       new AppError('Please enter a valid email address or password.')
     );
   }
-  const user = await User.findOne({ email: email }).select('+password').exec();
+  const user = await User.findOne({ email: email })
+    .select('+password +active')
+    .exec();
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password!', 401));
+  }
+  if (!user.active) {
+    return next(new AppError('Your account has been deactivated.', 401));
   }
   createSendToken(user, 200, res);
 };

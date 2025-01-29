@@ -2,6 +2,7 @@ const { MeiliSearch } = require('meilisearch');
 const Book = require('../models/bookModel');
 
 const client = new MeiliSearch({
+  // host: 'http://meilisearch:7700',
   host: 'http://127.0.0.1:7700',
   apiKey: 'aSampleMasterKey',
 });

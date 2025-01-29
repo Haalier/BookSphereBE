@@ -12,14 +12,12 @@ const filterObj = (obj, ...allowedFields) => {
 
 exports.getUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select('+active');
 
     res.status(200).json({
       status: 'success',
       results: users.length,
-      data: {
-        users,
-      },
+      users,
     });
   } catch (err) {
     next(err);
